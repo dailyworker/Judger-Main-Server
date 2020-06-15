@@ -2,13 +2,13 @@ package com.qt.question;
 
 
 import com.qt.domain.question.dto.QuestionInfo;
+import com.qt.domain.question.dto.ReplyInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
 @RestController
-@RequestMapping("/questions")
 public class QuestionController {
 
     private final QuestionService questionService;
@@ -16,33 +16,38 @@ public class QuestionController {
         this.questionService = questionService;
     }
 
-    @PostMapping
-    public ResponseEntity createQuestion(@ModelAttribute QuestionInfo questionInfo) {
-        Long id = questionService.save(questionInfo);
+    @PostMapping("/contests/{id}/questions")
+    public ResponseEntity createQuestion(@PathVariable("id") Long contestId, @ModelAttribute QuestionInfo questionInfo) {
+        Long id = questionService.saveQuestion(contestId, questionInfo);
         return ResponseEntity.created(URI.create("/questions/" + id)).build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<QuestionInfo> showContestInfo(@PathVariable Long id) {
-        QuestionInfo questionInfo = questionService.findById(id);
+    @GetMapping("/questions/{id}")
+    public ResponseEntity<QuestionInfo> showQuestionInfo(@PathVariable("id") Long questionId) {
+        QuestionInfo questionInfo = questionService.questionFindById(questionId);
         return ResponseEntity.ok(questionInfo);
     }
 
-// TODO : 역시 컨트롤러 Update 부분도 의논 사항
-//    @PostMapping("/{id}")
-//    public ResponseEntity updateContest(@PathVariable Long id, @ModelAttribute QuestionInfo questionInfo) {
-//        questionService.updateQuestion(id, questionInfo);
-//        return ResponseEntity.noContent().build();
-//    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity deleteQuestion(@PathVariable Long id) {
-        questionService.deleteQuestion(id);
+    @DeleteMapping("/questions/{id}")
+    public ResponseEntity<?> deleteQuestion(@PathVariable("id") Long questionId) {
+        questionService.deleteQuestion(questionId);
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/questions/{id}/replies")
+    public ResponseEntity createReply(@PathVariable("id")Long questionId, @ModelAttribute ReplyInfo replyInfo){
+        Long id = questionService.saveReply(questionId, replyInfo);
+        return ResponseEntity.created(URI.create("/replies/" + id)).build();
+    }
+
+    @GetMapping("/replies/{id}")
+    public ResponseEntity<ReplyInfo> showReplyInfo(@PathVariable("id") Long replyId){
+        ReplyInfo replyInfo = questionService.replyFindById(replyId);
+        return ResponseEntity.ok(replyInfo);
+    }
+
     @ExceptionHandler
-    public ResponseEntity eventErrorHandler(NotFoundQuestionException exception) {
+    public ResponseEntity<?> eventErrorHandler(NotFoundQuestionException exception) {
         return ResponseEntity.notFound().build();
     }
 }
