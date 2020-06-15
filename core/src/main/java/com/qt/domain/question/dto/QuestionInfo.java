@@ -3,6 +3,7 @@ package com.qt.domain.question.dto;
 import com.qt.domain.contest.Contest;
 import com.qt.domain.question.Question;
 import com.qt.domain.question.Reply;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,7 @@ public class QuestionInfo {
     private Reply reply;
 
     @Builder
-    public QuestionInfo(@NotNull Contest contest, @NotNull Integer problemNumber, @NotNull String content, Reply reply) {
+    public QuestionInfo(@NotNull Contest contest, @NotNull Integer problemNumber, @NotNull String content, String response, LocalDateTime createTime) {
         this.contest = contest;
         this.problemNumber = problemNumber;
         this.content = content;
