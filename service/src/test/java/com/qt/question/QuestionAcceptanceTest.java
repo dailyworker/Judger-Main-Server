@@ -4,7 +4,6 @@ import com.qt.AcceptanceTestUtils;
 import com.qt.domain.contest.Contest;
 import com.qt.domain.contest.dto.ContestInfo;
 import com.qt.ext.ContestRepository;
-import com.qt.ext.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,12 +26,6 @@ class QuestionAcceptanceTest {
 
     @Autowired
     private ContestRepository contestRepository;
-
-    @Autowired
-    private StudentRepository studentRepository;
-
-    @Autowired
-    private QuestionRepository questionRepository;
 
     private String questionId;
 
@@ -57,9 +50,8 @@ class QuestionAcceptanceTest {
                 .uri("/contests/"+ contest.getId() +"/questions")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromFormData("content", "test")
-                        //.with("createTime", String.valueOf(LocalDateTime.now()))
                         .with("problemNumber", String.valueOf(1))
-                        .with("response", " "))
+                        .with("reply", " "))
                 .exchange()
                 .expectStatus()
                 .isCreated()
@@ -79,5 +71,49 @@ class QuestionAcceptanceTest {
                 .isOk()
                 .expectBody()
                 .jsonPath("$.content").isEqualTo("test");
+    }
+
+    @Test
+    @DisplayName("질문 삭제 테스트")
+    void deleteQuestion(){
+        webTestClient.delete()
+                .uri("/questions/" + questionId)
+                .exchange()
+                .expectStatus()
+                .isNoContent();
+
+        webTestClient.delete()
+                .uri("/questions/" + questionId)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
+    @Test
+    @DisplayName("답변 조회 테스트")
+    void showReply(){
+        String replyId = createReply();
+
+        webTestClient.get()
+                .uri("/replies/" + replyId)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$.replyText").isEqualTo("테스트 답변");
+    }
+
+    private String createReply(){
+        WebTestClient.ResponseSpec responseSpec = webTestClient.post()
+                .uri("/questions/" + questionId + "/replies")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromFormData("replyText", "테스트 답변")
+                        .with("replier", "테스트 답변자"))
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectHeader().valueMatches("location", "/replies/[1-9]+[0-9]*");
+
+        return AcceptanceTestUtils.extractDomainIdFromCreatedResourceAddress(responseSpec);
     }
 }

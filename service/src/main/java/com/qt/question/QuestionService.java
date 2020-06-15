@@ -2,11 +2,11 @@ package com.qt.question;
 
 import com.qt.domain.contest.Contest;
 import com.qt.domain.question.Question;
+import com.qt.domain.question.Reply;
 import com.qt.domain.question.dto.QuestionInfo;
-import com.qt.domain.student.Student;
+import com.qt.domain.question.dto.ReplyInfo;
 import com.qt.ext.ContestRepository;
 import com.qt.ext.NotFoundContestException;
-import com.qt.ext.StudentRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,35 +17,47 @@ public class QuestionService {
 
     private final ContestRepository contestRepository;
     private final QuestionRepository questionRepository;
+    private final ReplyRepository replyRepository;
     private final ModelMapper modelMapper;
 
-    public QuestionService(ContestRepository contestRepository, QuestionRepository questionRepository, ModelMapper modelMapper) {
+    public QuestionService(ContestRepository contestRepository, QuestionRepository questionRepository, ReplyRepository replyRepository, ModelMapper modelMapper) {
         this.contestRepository = contestRepository;
         this.questionRepository = questionRepository;
+        this.replyRepository = replyRepository;
         this.modelMapper = modelMapper;
     }
 
-    public Long save(Long contestId, QuestionInfo questionInfo) {
+    public Long saveQuestion(Long contestId, QuestionInfo questionInfo) {
         Contest contest = contestRepository.findById(contestId)
                 .orElseThrow(NotFoundContestException::new);
 
         questionInfo.setContest(contest);
-
         Question question = questionInfo.toEntity();
+
         return questionRepository.save(question).getId();
     }
 
+    public Long saveReply(Long questionId, ReplyInfo replyInfo) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(NotFoundReplyException::new);
+
+        replyInfo.setQuestion(question);
+        Reply reply = replyInfo.toEntity();
+
+        return replyRepository.save(reply).getId();
+    }
+
     @Transactional(readOnly = true)
-    public QuestionInfo findById(Long id) {
-        Question question = questionRepository.findById(id).orElseThrow(NotFoundQuestionException::new);
+    public QuestionInfo questionFindById(Long questionId) {
+        Question question = questionRepository.findById(questionId).orElseThrow(NotFoundQuestionException::new);
         return modelMapper.map(question, QuestionInfo.class);
     }
 
-// TODO: 질문이 과연 Update가 필요한건지? 일회성으로 끝나야 하는건지 의논해야함.
-//    public Long updateQuestion(Long id, QuestionInfo questionInfo) {
-//        Question question = questionRepository.findById(id).orElseThrow(NotFoundQuestionException::new);
-//        return question.updateTo(questionInfo);
-//    }
+    @Transactional(readOnly = true)
+    public ReplyInfo replyFindById(Long replyId){
+        Reply reply = replyRepository.findById(replyId).orElseThrow(NotFoundReplyException::new);
+        return modelMapper.map(reply, ReplyInfo.class);
+    }
 
     public void deleteQuestion(Long id) {
         questionRepository.deleteById(id);
