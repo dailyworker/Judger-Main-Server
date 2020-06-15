@@ -50,3 +50,9 @@ project(':admin') {
         compile project(':core')
     }
 }
+
+project(':service') {
+    dependencies {
+        compile project(':core')
+    }
+}

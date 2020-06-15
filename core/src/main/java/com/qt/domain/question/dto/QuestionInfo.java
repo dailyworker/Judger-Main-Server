@@ -2,16 +2,14 @@ package com.qt.domain.question.dto;
 
 import com.qt.domain.contest.Contest;
 import com.qt.domain.question.Question;
-import com.qt.domain.student.Student;
+import com.qt.domain.question.Reply;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Lob;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -21,30 +19,35 @@ public class QuestionInfo {
     @NotNull
     private Contest contest;
 
-    @CreatedBy
-    private Student student;
-
     @NotNull
     private Integer problemNumber;
 
     @NotNull
+    @Lob
     private String content;
 
-    private String response;
+    @Lob
+    private Reply reply;
 
-    @CreatedDate
-    private LocalDateTime createTime;
-
-    public QuestionInfo(@NotNull Contest contest, @NotNull Student student, @NotNull Integer problemNumber, @NotNull String content, String response, LocalDateTime createTime) {
+    @Builder
+    public QuestionInfo(@NotNull Contest contest, @NotNull Integer problemNumber, @NotNull String content, Reply reply) {
         this.contest = contest;
-        this.student = student;
         this.problemNumber = problemNumber;
         this.content = content;
-        this.response = response;
-        this.createTime = createTime;
+        this.reply = reply;
     }
 
     public Question toEntity() {
-        return new Question(contest, student, problemNumber, content, response, createTime);
+        return new Question(contest, problemNumber, content, reply);
+    }
+
+    @Override
+    public String toString() {
+        return "QuestionInfo{" +
+                "contest=" + contest +
+                ", problemNumber=" + problemNumber +
+                ", content='" + content + '\'' +
+                ", reply='" + reply + '\'' +
+                '}';
     }
 }

@@ -1,5 +1,6 @@
 package com.qt.domain.question;
 
+import com.qt.domain.BaseTimeEntity;
 import com.qt.domain.student.Student;
 import com.qt.domain.contest.Contest;
 import lombok.Getter;
@@ -14,39 +15,28 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Question {
+public class Question extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
     @ManyToOne
     private Contest contest;
 
-    @CreatedBy
-    @ManyToOne
-    private Student student;
-
-    @NotNull
     private Integer problemNumber;
 
-    @NotNull
     @Lob
     private String content;
 
-    @Lob
-    private String response;
+    @OneToOne
+    @JoinColumn(name = "reply_id")
+    private Reply reply;
 
-    @CreatedDate
-    private LocalDateTime createTime;
-
-    public Question(@NotNull Contest contest, Student student, @NotNull Integer problemNumber, @NotNull String content, String response, LocalDateTime createTime) {
+    public Question(@NotNull Contest contest, @NotNull Integer problemNumber, @NotNull String content, Reply reply) {
         this.contest = contest;
-        this.student = student;
         this.problemNumber = problemNumber;
         this.content = content;
-        this.response = response;
-        this.createTime = createTime;
+        this.reply = reply;
     }
 }
