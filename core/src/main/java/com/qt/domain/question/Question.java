@@ -1,7 +1,6 @@
 package com.qt.domain.question;
 
 import com.qt.domain.BaseTimeEntity;
-import com.qt.domain.student.Student;
 import com.qt.domain.contest.Contest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

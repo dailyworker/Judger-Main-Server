@@ -22,6 +22,7 @@ public class QuestionController {
         return ResponseEntity.created(URI.create("/questions/" + id)).build();
     }
 
+    
     @GetMapping("/questions/{id}")
     public ResponseEntity<QuestionInfo> showQuestionInfo(@PathVariable("id") Long questionId) {
         QuestionInfo questionInfo = questionService.questionFindById(questionId);
